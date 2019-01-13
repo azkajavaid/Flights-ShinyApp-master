@@ -1,0 +1,142 @@
+---
+title: "ggplot2 Worksheet"
+output: html_document
+authors: Azka Javaid & Pei Gong
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include = FALSE}
+require(mosaic)
+require(ggplot2)
+#install.packages("RColorBrewer")
+require(RColorBrewer)
+```
+
+##Aesthetics (size, shape, alpha)
+
+```{r}
+#Point shape, size and alpha (controls point shading intensity) can be specified in geom_point
+#Use shapes 21-25 to see the fill attribute 
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, fill = Species)) + geom_point(shape = 21, size = 3, alpha = 0.3)
+```
+
+#### Try different specifications of the alpha level as well as shape and size. Complete list of possible shapes can be obtained from online R documentation and is also available in the PowerPoint presented. 
+
+##Aesthetics (jitter specification)
+
+```{r}
+posn.j <- position_jitter(width = 0.5) #width can be changed depending on the data scatter
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + geom_point(position = posn.j)
+```
+
+#### Change values of jitter command to visualize the scatter dispersal in the iris dataset. 
+
+##Aesthetics (axis labels and legends)
+
+```{r}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + geom_point(position = "jitter") +
+  scale_x_continuous("Length", limits = c(2,8), breaks = seq(2,8,3)) + 
+  scale_y_continuous("Width", limits = c(2,4), breaks = seq(2,4,0.5)) +
+  scale_color_discrete("Species", labels = c("Setosa", "Versicolour","Virginica"))
+```
+
+##Aesthetics (color and RColorBrewer)
+
+```{r}
+#display.brewer.all() #displays all possible brewer color combinations 
+ggplot(iris, aes(x = Sepal.Length)) +
+geom_bar(aes(fill = Species))+scale_fill_brewer(palette = "Reds")
+```
+
+#### Uncomment display.brewer.all() and replace palette with another color combination to see how the plot changes. 
+
+##Geometries (position and bar plots)
+
+```{r}
+barplot1 <- ggplot(mtcars, aes(x = factor(cyl), fill = factor(am)))
+#Default specified stack (uses counts)
+barplot1 + geom_bar(position = "stack")
+
+#Fill accounts for proportions
+barplot1 + geom_bar(position = "fill")  
+
+#Dodging allows one to separate each factor's affect in a distinguished bar (uses counts)
+barplot1 + geom_bar(position = "dodge")
+```
+
+##Geometries (boxplot)
+
+```{r}
+#Specified binwidth can be altered (smaller binwidth: more detailed representation of the data)
+ggplot(iris, aes(x = Species, y = Sepal.Width)) + geom_boxplot()
+```
+
+#### Change the y attribute to Sepal.Width to visualize the width for each specie and compare with the plot above.
+
+##Facets
+
+````{r}
+base <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_point()
+
+#Separate rows by transmission type (am)
+base + facet_grid(am ~ .)
+
+#Separate columns by transmission type (am)
+base + facet_grid(. ~ am)
+```
+
+####Explore the two different methods of faceting the data presented above with the cyl attribute in the mtcars dataset. 
+
+##Statistics (Group and Individual Effects)
+
+```{r}
+#Individual effect of each level of the cyl attribute
+ggplot(mtcars, aes(x = wt, y = mpg, col = factor(cyl))) + geom_point() + stat_smooth(method = "lm", se = F)
+
+#Group effect of the cyl attribute
+ggplot(mtcars, aes(x = wt, y = mpg, col = factor(cyl), group = 1)) + geom_point() + stat_smooth(method = "lm", se = F)
+
+#Overlaying the individual and the group effects
+ggplot(mtcars, aes(x = wt, y = mpg, col = factor(cyl))) + geom_point() + stat_smooth(method = "lm", se = F) +
+  stat_smooth(method = "lm", se = F, aes(group = 1))
+```
+
+##Statistics (Confidence Intervals)
+
+```{r}
+#Incorporation of the cyl attribute with the confidence interval cloud
+ggplot(mtcars, aes(x = wt, y = mpg, col = factor(cyl))) + geom_point() + stat_smooth(method = "lm")
+```
+
+
+##Theme (Changing location of the legend)
+```{r}
+base <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + geom_point(position = posn.j)
+base + theme(legend.position = c(0.89, 0.86)) #manually specify the location 
+base + theme(legend.position = "bottom") 
+base + theme(legend.direction = "horizontal")
+```
+
+##Theme (Alternate representations of the xyplot by Species)
+
+```{r}
+base <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + geom_point(position = posn.j)
+#Changing the background color and other attributes of the base plot (same plot as in the presentation)
+
+theme1 <- theme(panel.background = element_blank(), 
+                   legend.background = element_blank(),
+                   legend.key = element_blank(),
+                   panel.grid = element_blank(),
+                   axis.text = element_text(colour = "black"),
+                   axis.line = element_line(colour = "black")
+                   )
+base + theme1
+```
+
+
+####Change the colour in the element_text to observe the effect on the graph.
+
+####Experiment with the theme above, create another theme of choice and apply it to the base plot. 

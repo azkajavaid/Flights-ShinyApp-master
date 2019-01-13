@@ -1,0 +1,136 @@
+---
+title: "ggplot2 By Azka & Pei"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+#setwd("~/Desktop")
+require(ggplot2)
+require(mosaic)
+data(iris)
+```
+
+## ggplot2 vs. Base Plotting
+<div align="center">
+<img src="Layers_ggplots2.png" width=450 height=400>
+</div>
+
+## Grammar of ggplot2
+<div align="center">
+<img src="Grammar_ggplot2.png" width=950 height=450>
+</div>
+
+## Aesthetics
+<div align="center">
+<img src="Aesthetics.png" width=400 height=200>
+</div>
+
+<div align="center">
+<img src="Shapes.png" width=400 height=400>
+</div>
+
+##Aesthetics: Quantitative vs. Qualitative 
+<div align="center">
+<img src="Quantitative Data.png" width=400 height=200>
+</div>
+<div align="center">
+<img src="Qualitative Data.png" width=400 height=400>
+</div>
+
+## Aesthetics Example: Line Plot
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, group=1)) +
+  geom_line()
+```
+
+## Aesthetics: Line Plot with Gradations
+```{r, echo = TRUE} 
+p <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, group=1)) +
+    geom_line()
+p + geom_line(aes(colour = Petal.Length))
+```
+
+## Aesthetics: Line Plot with Species
+```{r, echo = TRUE}
+posn.j <- position_jitter(width = 0.1)
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + 
+  geom_point(position = posn.j)
+```
+
+## Geometries
+
+<div align="center">
+<img src="Geometries.png" width=600 height=400>
+</div>
+
+## Geometries Example: Histogram
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Sepal.Width)) + 
+  geom_histogram(binwidth = 0.1)
+```
+
+## Geometries: Histogram with Species
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Sepal.Width, fill = Species)) + 
+  geom_histogram(binwidth = 0.1)
+```
+
+## Geometries: Bar Plot
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Species, y = Sepal.Length)) +
+  geom_bar(stat = "identity", fill = "lightblue")
+#sum(Sepal.Length~Species, data = iris)
+```
+
+## Facets Example
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_point() + facet_grid(. ~ Species)
+```
+
+## Statistics
+
+<div align="center">
+<img src="stats_layer.png" width=600 height=400>
+</div>
+
+## Statistics Example (Regression model)
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_point() + geom_smooth(method = "lm")
+```
+
+## Coordinates Example (Zoom in)
+```{r, echo = TRUE}
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) +
+      geom_point() + geom_smooth() + coord_cartesian(xlim = c(3,6))
+```
+
+## Themes
+
+<div align="center">
+<img src="Themes.png" width=600 height=400>
+</div>
+
+## Themes Example
+
+<div align="center">
+<img src="ThemesExampleR.png" width=600 height=300>
+</div>
+
+## Themes Example cont.
+```{r, echo = FALSE}
+z <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_point() + facet_grid(. ~ Species)
+z + theme(panel.background = element_blank(),legend.key = element_blank(),
+legend.background = element_blank(),strip.background = element_blank(),
+plot.background = element_rect(fill = "light blue", 
+                               color = "black", size = 3))
+```
+
+## Sources
+
+- DataCamp's Data Visualization with ggplot2(1) and ggplots2(2)
+
+- Shapes image from http://sape.inf.usi.ch/quick-reference/ggplot2/shape

@@ -1,0 +1,2 @@
+### Flights-ShinyApp
+Flights Shiny Application analyzes United States flights departure delays data from 2008-2016 in R. This application analyzes flights with departure delay greater than 90 minutes, assessing delays by state, division, region and carrier status over time. Application is accessible at https://aj17.shinyapps.io/flightsapp/. For full documentation on the project, consult https://github.com/ajav17/FlightsDelay-StatisticsComprehensive. 

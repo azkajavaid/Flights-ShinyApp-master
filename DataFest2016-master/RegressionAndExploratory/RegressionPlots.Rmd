@@ -1,0 +1,119 @@
+Conditions to check:
+Residual vs. fits and qqplot (linearity and constant variance)
+Histogram of residuals (normality)
+Independence and random (from data)
+
+Departures from normality:
+Sqrt transformations for fan-shaped
+Log transformations for extreme valued plots
+
+```{r}
+Porsche.df <- read.csv("PorschePrice.csv")
+dim(Porsche.df)
+attach(Porsche.df)
+plot(Mileage, Price)
+Porsche.lm1 <- lm(Price~Mileage)
+abline(Porsche.lm1)
+abline(h = mean(Price, lty = 3))
+abline(80, -0.7, lty = 2) #add another line with intercept 80 and slope -0.7
+tab<-cbind(Mileage, Price, Porsche.lm1$fit, Porsche.lm1$resid)#[1:5,]
+Porsche.lm1.table <- data.frame(tab)
+names(Porsche.lm1.table)
+names(Porsche.lm1.table)[c(3,4)] <- c("fitts", "residuals")
+head(Porsche.lm1.table)
+```
+
+#Assess model conditions
+```{r}
+plot(Porsche.lm1$fitted.values, Porsche.lm1$residuals)
+hist(Porsche.lm1$residuals) #residuals
+qqnorm(Porsche.lm1$resid)
+qqline(Porsche.lm1$resid)
+myqqnorm <- function(x){
+            qqnorm(x)
+            qqline(x)
+}
+```
+
+#Transformations
+```{r}
+MetroHealth83.df <- read.csv("MetroHealth83.csv")
+MetroHealth.df <- MetroHealth83.df[,c(1,2,4)] #only three variables selected
+attach(MetroHealth.df)
+par(mfrow = c(2,2))
+MetroHealth.lm1 <- lm(NumMDs ~ NumHospitals)
+plot(NumHospitals, NumMDs)
+abline(MetroHealth.lm1)
+plot(MetroHealth.lm1$fitted.values, MetroHealth.lm1$residuals)
+abline(h = 0)
+hist(MetroHealth.lm1$resid)
+myqqnorm(MetroHealth.lm1$residuals)
+par(mfrow = c(1,1))
+
+#squared root transformation
+SqrtMDs <- sqrt(NumMDs)
+MetroHealth.df <- data.frame(MetroHealth.df,SqrtMDs)
+MetroHealth.lm2 <- lm(SqrtMDs ~ NumHospitals)
+par(mfrow = c(2,2))
+MetroHealth.lm2 <- lm(SqrtMDs ~ NumHospitals)
+par(mfrow = c(2,2))
+plot(NumHospitals, SqrtMDs)
+abline(MetroHealth.lm2)
+plot(MetroHealth.lm2$fit, MetroHealth.lm2$resid)
+abline(h=0)
+hist(MetroHealth.lm2$resid)
+myqqnorm(MetroHealth.lm2$resid)
+part(mfrow = c(1,1))
+```
+
+
+```{r}
+summary(Porsche.lm1)
+anova(Porsche.lm1)
+confint(Porsche.lm1, level = 0.90)
+R<-cor(Price, Mileage)
+plot(Age, Weight, pch = 16-15*Sex) #Sex = 0(boys)
+#Polynomial model
+Perch.lm3 <- lm(Weight ~ Length + Width + I(Length^2)+ I(Width^2)+Length:Width)
+vif(Perch.lm3)
+#VIF greater than 5 is multicollinearity
+anova(smallModel, largeModel) #if p-value larger than 0.05 means that the additional terms not significant 
+```
+
+#Consider making additional predictors with transformations
+
+#Scatterplot matrix
+```{r}
+GPA.df <- read.csv("FirstYearGPA.csv")
+pairs(GPA.df[,c(1,2,3,4,5,6,7)])
+full <- lm(GPA ~., data = GPA.df)
+step(full, direction = "both")
+```
+
+
+#Bootstrapping for regression
+```{r}
+PorschePrice.df <- read.csv("PorschePrice.csv")
+attach(PorschePrice.df)
+originalmodel <- lm(Price~Mileage)
+summary(originalmodel)
+car <- 1:30
+bootsample <- sample(car, replace = TRUE) #create a bootstrap sample
+head(PorschePrice.df[bootsample,]) #look at first few bootstrap samples
+
+#repeat this many times
+bootbetas <- matrix(0, nrow = 5000, ncol = 2)
+
+for (i in 1:5000){
+  bootsample <- sample(car,replace = TRUE)
+  bootmodel <- lm(Price ~ Mileage, data <- PorschePrice.df[bootsample,])
+  bootbetas[i,] <- coef(bootmodel)
+}
+
+hist(bootbetas[,2]) #Make histogram of the slopes
+sd(bootbetas[,2])
+
+
+
+```
+

@@ -1,0 +1,99 @@
+
+##Includes machine learning classification algorithm as well as creation of new categorical predictors using mutate
+
+```{r}
+library(mosaic)
+library(rpart)
+install.packages("rattle")
+library(rattle)
+install.packages("rpart.plot")
+library(rpart.plot)
+install.packages("RColorBrewer")
+library(RColorBrewer)
+```
+
+
+###Creating new categorical predictors (age_type and income_type) from previous quantitative 
+```{r}
+#have a predictor that accounts for profit 
+
+demPurchase <- purchase[,c("age_yr", "income_amt","edu_val","gndr_cd","married_ind","home_owner_ind","occpn_val","tickets_purchased_qty", "la_valid_tkt_event_flg","child_present_ind","sales_ord_create_dttm","sales_ord_tran_dt","trans_face_val_amt","print_flg")]
+
+demPurchase$age_yr<-as.numeric(demPurchase$age_yr)
+
+demPurchase2 <- mutate(demPurchase, age_type = derivedFactor( 
+  Small = (age_yr <= 12),
+  Teens = (age_yr >=13 & age_yr <=17),
+  YoungAdult = (age_yr <= 36 & age_yr >= 18),
+  MiddleAge = (age_yr >= 37 & age_yr <= 44),
+  .ordered = TRUE))
+
+
+demPurchase <- mutate(demPurchase2, income_type = derivedFactor( 
+  High = income_amt == "200000",
+  Medium = (income_amt == "45000") |
+     (income_amt == "112500") | (income_amt == "62500") | (income_amt == "87500"),
+  Low = (income_amt == "10000")| 
+      (income_amt == "17500" )| (income_amt == "25000") | (income_amt == "35000"),
+  Other = (income_amt == "" )| (income_amt == "NULL"),
+  .ordered = TRUE)
+) 
+```
+
+###Machine learning classification (predicting if a user has mobile/non-mobile)
+```{r}
+#Creating test and training datasets (70-30 split)
+n <- nrow(demPurchase)
+shuffled_df <- demPurchase[sample(n), ]
+train_indices <- 1:round(0.7 * n)
+train <- shuffled_df[train_indices, ]
+test_indices <- (round(0.7 * n) + 1):n
+test <- shuffled_df[test_indices, ]
+
+#tickets_purchased: Quantity of tickets purchased
+#trans_face_cal_amt: Transaction face value of the tickets purchased
+#Cost of ticket: tickets_purchased_qty/trans_face_val_amt
+#print_flg: Whether or not the ticket was printed
+
+tree <- rpart(la_valid_tkt_event_flg ~ tickets_purchased_qty/trans_face_val_amt + tickets_purchased_qty + print_flg, train, method = "class")
+pred <- predict(tree, test, type = "class")
+conf <- table(test$la_valid_tkt_event_flg, pred)
+fancyRpartPlot(tree) # to make a decision tree for training data
+print(sum(diag(conf)) / sum(conf)) #formula for accuracy (88% accuracy)
+```
+
+###ROC curve
+```{r}
+set.seed(1)
+tree <- rpart(la_valid_tkt_event_flg ~ tickets_purchased_qty/trans_face_val_amt + tickets_purchased_qty + print_flg, train, method = "class")
+probs <- predict(tree, test, type = "prob")[,2]
+
+# Load the ROCR library
+library(ROCR)
+
+# Make a prediction object: pred
+pred <- prediction(probs, test$la_valid_tkt_event_flg)
+
+# Make a performance object: perf
+perf <- performance(pred, "tpr", "fpr")
+
+# Plot this curve
+plot(perf)
+```
+
+###AUC curve
+```{r}
+pred <- prediction(probs, test$la_valid_tkt_event_flg)
+
+# Make a performance object: perf
+perf <- performance(pred, "auc")
+
+# Print out the AUC
+print(perf@y.values[[1]]) #area under the curve is 88%
+```
+
+###Decision tree
+```{r}
+library(rpart); library(partykit)
+plot(tree)
+```

@@ -1,0 +1,83 @@
+---
+title: "tidyr outline"
+output: html_document
+---
+
+```{r}
+require(mosaic)
+require(dplyr)
+require(tidyr)
+install.packages("nutshell")
+library(nutshell)
+```
+
+#tbl and glimpse to summarise data
+```{r}
+data(iris)
+tbl_df(iris)
+glimpse(iris)
+```
+
+#Piping commands to group results
+```{r}
+iris %>%
+  group_by(Species) %>%
+  summarise(avg = mean(Sepal.Width)) %>%
+  arrange(avg)
+```
+
+#Reshape data (Change layout)
+```{r}
+messy <- data.frame(
+  name = c("Wilbur", "Petunia", "Gregory"),
+  a = c(67, 80, 64),
+  b = c(56, 90, 50)
+)
+messy %>% gather(drug, heartrate, a:b) #transform rows into columns
+
+#Spread rows into columns
+spread(data, column1, column2...) #column1 and column2 are rows to be summarized
+
+#Separate one column in multiple
+separate(data, date, c("y", "m", "d"))
+```
+
+#Subset rows and columns
+```{r}
+#Subset rows using filter
+#SUbset variables using select
+distinct(iris) #removes distinct rows
+#Randomly select percentage of data
+new<-sample_frac(iris, 0.5, replace = TRUE) #select half of the observations in iris
+```
+
+#Joning two relations
+```{r}
+#Set operations useful when relations have same schema
+intersect(data1, data2) #find observations common in both relation 1 and 2
+union(data1, data2) #find all set of observations in two relations
+
+#for full_join and inner_join, specify a mutual column
+full_join(data1, data2, by = "x1") #also retains null values too
+
+#can also bind data horizontally and vertically
+```
+
+
+#Time series example
+```{r}
+ts(1:8, start = c(2008, 3), frequency = 4)
+data("turkey.price.ts")
+start(turkey.price.ts) #when time series starts
+end(turkey.price.ts)
+frequency(turkey.price.ts) #number of observations per time period
+deltat(turkey.price.ts) #time interval between observations
+```
+
+#Manipulating date objects
+```{r}
+date.I.started.writing<-as.Date("2/13/2009", "%m/%d/%Y") #converts date in the specified format
+today<-Sys.Date() #today's date
+today - date.I.started.writing #takes difference of the dates 
+```
+

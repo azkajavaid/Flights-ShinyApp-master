@@ -1,0 +1,14 @@
+---
+title: "ANOVA"
+output: html_document
+---
+
+#Equal variance condition for ANOVA (residuals vs. fits and Smax/Smin)
+
+```{r}
+library(mosaic)
+library(lattice)
+FruitFlies.df <- read.csv("FruitFlies.csv")
+attach(FruitFlies.df)
+xyplot(Longevity ~ Treatment) #produces dot plot
+```

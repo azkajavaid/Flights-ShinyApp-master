@@ -1,0 +1,62 @@
+---
+title: "PreparingData"
+output: html_document
+---
+
+#Using paste to prepare data
+paste(x, y, sep = "") #attach x and y separated by -
+
+#rbind(add more rows) and cbind(add more columns)
+cbind(data1, data2) #data2 has additional columns
+
+#Using tranform to add additional attributes(colums)
+#make new columns, Date and mid from the original data
+data2 <- transform(data, Date = as.date(Date), + mid = (High+Low)/2) 
+
+#Apply function 
+apply(X = data, MARGIN = 1, FUN = max) #MARGIN = 1 specifies over rows, use 2 for columns
+
+x <- as.list(1:5)
+d<-data.frame(x = 1:5, y = 6:10)
+sapply(d, FUN = function(x) 2^x)
+
+#Chloropleth map
+library(maps)
+states <- map_data("state")
+
+#t test to compare means (0 contained in the interval means not significant)
+t.test(group1, group2, data = )
+
+#t test for paired data
+t.test(group1, group2, paired = TRUE, data = )
+
+#Compare variances of two population
+var.test(group1, group1, data = )
+
+library(nutshell)
+data(mort06.smpl)
+#Comparing means for more than 2 groups (use aov)
+model.tables(aov(age~Cause, data = mort06.smpl)) #analyze differences by Cause variable
+or 
+aov(age~Cause, data = mort06.smpl)
+
+#Nonparametric tests (is not normally distirbuted)
+#Wilcoxin is nonparametric equivalent of t-test
+wilcox.test(group1, group2)
+
+#Kruskal walis is nonparametric equivalent of ANOV (compare more than two means)
+kruskal.test(var1~var2, data = )
+
+#test for propotional differences like a table
+pro.test(table1)
+
+#After building a model, to get the confidence intervals, use confint command
+confint(mod1)
+
+#using step regression
+names(mort06.smpl)
+null <- lm(Sepal.Length ~1, data = iris)
+full <- lm(Sepal.Length ~., data = iris)
+step(null, scope = list(upper=full), data=iris, direction="both") #step wise regression 
+#performing step wise regression
+
